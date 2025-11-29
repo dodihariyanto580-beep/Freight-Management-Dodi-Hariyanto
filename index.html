@@ -3,395 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jawaban UTS Freight Management - Infografis Data</title>
+    <title>Analisis Ekspor: Incoterms & Strategi Pabean</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Config for Tailwind & Custom Styles -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': '#4F46E5', // Indigo 600
-                        'secondary': '#06B6D4', // Cyan 500
-                        'accent': '#F59E0B', // Amber 500
-                        'dark': '#111827',
-                        'light': '#F3F4F6',
-                        'card-bg': '#FFFFFF',
-                        'chart-blue': '#3B82F6',
-                        'chart-purple': '#8B5CF6',
-                        'chart-teal': '#14B8A6',
-                        'chart-red': '#EF4444'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
 
     <style>
-        /* Chart Container Strict Styling */
+        /* Custom Font Import */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F3F4F6; /* Light Grey background */
+            color: #1F2937; /* Dark Grey text */
+        }
+
+        /* Chart Container Styling - Mandatory Requirements */
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 100%; /* Ensures it fits in grid columns */
-            height: 400px;
+            max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            background-color: #fff;
-            border-radius: 0.5rem;
-            padding: 1rem;
+            height: 350px;
+            max-height: 400px;
         }
 
-        /* Specific constraints for different screen sizes handled by Tailwind classes in HTML, 
-           but these ensure canvas doesn't overflow */
-        canvas {
-            max-width: 100% !important;
-            max-height: 100% !important;
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
         }
 
-        /* Hide scrollbar for clean UI */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* Palette Classes for JS Reference */
+        :root {
+            --color-primary: #2563EB; /* Vibrant Blue */
+            --color-secondary: #F97316; /* Energetic Orange */
+            --color-accent: #10B981; /* Green for positive */
+            --color-danger: #EF4444; /* Red for risk */
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+
+        .gradient-text {
+            background: linear-gradient(to right, #2563EB, #F97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
         }
         
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
+        .card-shadow:hover {
+            transform: translateY(-2px);
         }
     </style>
-    
-    <!-- 
-    Palette Selection: "Vibrant Professional"
-    Based on high-contrast data visualization standards to ensure readability and engagement.
-    Uses Indigo, Cyan, and Amber as primary drivers.
-    -->
-    
-    <!--
-    Narrative Plan:
-    1. Introduction: Scope of Freight Management & Logistics Cost Context.
-    2. Modes: Comparative analysis of transport types.
-    3. Routing: Efficiency gains through VRP/Optimization.
-    4. Costs: Breakdown of operational economics.
-    5. Regulation: Incoterms and liability transfer.
-    6. Technology: The digital shift (IoT/AI).
-    7. Risk Case Study: Specific matrix for the frozen food hyper-local scenario.
-    -->
-
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="antialiased">
 
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex-shrink-0 flex items-center">
-                    <span class="font-bold text-2xl text-primary">Freight<span class="text-secondary">Viz</span></span>
-                </div>
-                <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-500">
-                    <a href="#intro" class="hover:text-primary transition">1. Pengantar</a>
-                    <a href="#moda" class="hover:text-primary transition">2. Moda</a>
-                    <a href="#rute" class="hover:text-primary transition">3. Rute</a>
-                    <a href="#biaya" class="hover:text-primary transition">4. Biaya</a>
-                    <a href="#risiko" class="hover:text-primary transition">7. Studi Kasus (Risiko)</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Header -->
-    <header class="bg-gradient-to-r from-primary to-purple-700 text-white py-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Jawaban Asesmen Freight Management</h1>
-            <p class="text-xl text-indigo-100 max-w-3xl mx-auto">Analisis Mendalam Topik 1-7: Dari Konsep Dasar, Ekonomi, hingga Manajemen Risiko Digital.</p>
-            <div class="mt-8 inline-block bg-white/10 px-6 py-2 rounded-full border border-white/20">
-                <span class="font-semibold">Mata Kuliah:</span> Manajemen Logistik & Transportasi | <span class="font-semibold">Sifat:</span> Analisis Data & Visualisasi
-            </div>
+    <!-- Header Section -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-blue-600">Canvas<span class="text-orange-500">Info</span></h1>
+            <nav class="hidden md:flex space-x-6 text-sm font-semibold text-gray-600">
+                <a href="#overview" class="hover:text-blue-600">Studi Kasus</a>
+                <a href="#incoterms" class="hover:text-blue-600">Analisis Risiko</a>
+                <a href="#customs" class="hover:text-blue-600">Strategi Pabean</a>
+            </nav>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
 
-        <!-- SOAL 1: PENGANTAR -->
-        <section id="intro" class="scroll-mt-24">
-            <div class="border-l-4 border-primary pl-4 mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">1. Pengantar & Peran dalam Supply Chain</h2>
-                <p class="text-gray-500 mt-1">Ref: Pertemuan 1 - Pengantar Freight Management</p>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-                <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <p class="text-gray-700 leading-relaxed">
-                            Freight Management bukan sekadar pengiriman barang, melainkan integrasi strategis antara shipper, carrier, dan forwarder untuk menciptakan efisiensi biaya. Di Indonesia, biaya logistik masih cukup tinggi (sekitar 23% dari PDB), menjadikan efisiensi freight sebagai kunci daya saing.
-                        </p>
-                        <p class="mt-4 text-gray-700 leading-relaxed">
-                            Tantangan utama mencakup kompleksitas multi-stakeholder dan infrastruktur kepulauan. Seperti dikutip dari materi: <em>"The best supply chains are invisible to the customer, but visible to the business."</em>
-                        </p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-blue-50 p-4 rounded-lg text-center">
-                            <h4 class="text-2xl font-bold text-blue-600">23.5%</h4>
-                            <p class="text-sm text-gray-600">Biaya Logistik terhadap PDB (Estimasi)</p>
-                        </div>
-                        <div class="bg-purple-50 p-4 rounded-lg text-center">
-                            <h4 class="text-2xl font-bold text-purple-600">No. 1</h4>
-                            <p class="text-sm text-gray-600">Biaya Transportasi sbg Komponen Terbesar</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- Title & Intro -->
+        <section class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-4 gradient-text">Analisis Strategis: Ekspor Palm Kernel Expeller</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                Membedah implikasi risiko Incoterms 2020 (FOB vs CIF) dan optimalisasi keuntungan melalui instrumen dasar kepabeanan dan FTA dalam studi kasus PT Jadi Berkah.
+            </p>
+        </section>
 
-                <!-- Visualization 1: Cost Composition -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="mb-4">
-                        <h3 class="text-lg font-semibold text-gray-800">Komposisi Biaya Logistik Nasional</h3>
-                        <p class="text-xs text-gray-500">Goal: Inform & Compare (Data distribution)</p>
+        <!-- Section 1: Overview (Flow Diagram via HTML/CSS - NO SVG) -->
+        <section id="overview" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-3 bg-white rounded-xl card-shadow p-6 border-l-4 border-blue-600">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">1. Profil Transaksi (The Deal)</h3>
+                <p class="mb-6 text-gray-600">
+                    PT Jadi Berkah mengekspor komoditas curah ke Jepang. Pemilihan Incoterms akan menentukan siapa yang menanggung kerugian akibat keterlambatan kapal dan kerusakan muatan.
+                </p>
+                
+                <!-- HTML-based Process Flow -->
+                <div class="flex flex-col md:flex-row justify-between items-center text-center space-y-6 md:space-y-0">
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl mb-2">🏭</div>
+                        <h4 class="font-bold text-blue-800">PT Jadi Berkah</h4>
+                        <p class="text-xs text-gray-500">Jakarta (Tanjung Priok)</p>
+                        <p class="text-sm font-semibold mt-1">1.500 Ton PKE</p>
                     </div>
-                    <div class="chart-container h-80">
-                        <canvas id="introChart"></canvas>
+                    
+                    <!-- Arrow -->
+                    <div class="hidden md:block flex-1 border-t-2 border-dashed border-gray-300 relative">
+                        <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-gray-400 text-xl">▶</span>
+                    </div>
+
+                    <!-- Incident Marker -->
+                    <div class="flex flex-col items-center flex-1 relative">
+                         <div class="absolute -top-4 -right-4 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse shadow-lg">Masalah!</div>
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-3xl mb-2">⚓</div>
+                        <h4 class="font-bold text-orange-600">Pelabuhan Muat</h4>
+                        <p class="text-xs text-gray-500">Tanjung Priok</p>
+                        <div class="mt-2 text-xs bg-red-50 border border-red-200 text-red-700 p-2 rounded">
+                            <span class="font-bold">Insiden:</span><br>
+                            Telat 2 Hari<br>
+                            Rusak 5%
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="hidden md:block flex-1 border-t-2 border-dashed border-gray-300 relative">
+                        <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-gray-400 text-xl">▶</span>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl mb-2">🇯🇵</div>
+                        <h4 class="font-bold text-blue-800">Yokohama Feed</h4>
+                        <p class="text-xs text-gray-500">Pelabuhan Yokohama</p>
+                        <p class="text-sm font-semibold mt-1">Pembeli</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SOAL 2: MODA TRANSPORTASI -->
-        <section id="moda" class="scroll-mt-24">
-            <div class="border-l-4 border-secondary pl-4 mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">2. Analisis & Pemilihan Moda Transportasi</h2>
-                <p class="text-gray-500 mt-1">Ref: Pertemuan 2 - Jenis Muatan & Moda</p>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 space-y-4">
-                        <h3 class="text-xl font-bold text-gray-800">Trade-off Matrix</h3>
-                        <p class="text-gray-600 text-sm">
-                            Pemilihan moda transportasi adalah seni menyeimbangkan <strong>Kecepatan</strong>, <strong>Biaya</strong>, dan <strong>Kapasitas</strong>.
-                        </p>
-                        <ul class="space-y-3 mt-4 text-sm">
-                            <li class="flex items-center">
-                                <span class="w-3 h-3 bg-indigo-500 rounded-full mr-2"></span>
-                                <strong>Udara:</strong> High Value, Time Sensitive (e.g., Elektronik, Pharma).
-                            </li>
-                            <li class="flex items-center">
-                                <span class="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>
-                                <strong>Laut:</strong> High Volume, Low Cost (e.g., Komoditas, Heavy Machinery).
-                            </li>
-                            <li class="flex items-center">
-                                <span class="w-3 h-3 bg-teal-400 rounded-full mr-2"></span>
-                                <strong>Darat (Truck):</strong> Door-to-Door flexibility, Regional.
-                            </li>
-                        </ul>
-                    </div>
-                    <!-- Visualization 2: Radar Chart -->
-                    <div class="lg:col-span-2">
-                         <div class="chart-container h-96">
-                            <canvas id="modeRadarChart"></canvas>
-                        </div>
-                        <p class="text-center text-xs text-gray-400 mt-2">Perbandingan Karakteristik Moda (Skala 1-10)</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SOAL 3: PERENCANAAN RUTE -->
-        <section id="rute" class="scroll-mt-24">
-            <div class="border-l-4 border-accent pl-4 mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">3. Optimasi Rute (VRP & TSP)</h2>
-                <p class="text-gray-500 mt-1">Ref: Pertemuan 3 - Perencanaan & Optimasi Rute</p>
+        <!-- Section 2: Incoterms Analysis -->
+        <section id="incoterms">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 border-b-2 border-orange-500 inline-block pb-2">2. Analisis Risiko: FOB vs CIF</h3>
+                <p class="mt-4 text-gray-600">
+                    Perbedaan mendasar antara <strong>Free On Board (FOB)</strong> dan <strong>Cost, Insurance, and Freight (CIF)</strong> terletak pada biaya pengiriman, namun titik peralihan risiko (Risk Transfer) seringkali disalahpahami. Grafik di bawah membandingkan komponen biaya dan kewajiban.
+                </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Concept Card -->
-                <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-accent">
-                    <h3 class="text-lg font-bold mb-3">Vehicle Routing Problem (VRP)</h3>
-                    <p class="text-gray-600 mb-4">
-                        Mengoptimalkan rute bukan hanya mencari jarak terpendek (Shortest Path), tetapi mempertimbangkan <em>Time Windows</em>, kapasitas kendaraan, dan jam kerja pengemudi.
+                <!-- Chart: Cost Structure & Risk Point -->
+                <div class="bg-white rounded-xl card-shadow p-6 flex flex-col">
+                    <h4 class="font-bold text-lg mb-4 text-center">Struktur Biaya & Titik Risiko</h4>
+                    <div class="chart-container flex-grow">
+                        <canvas id="incotermsChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center mt-2 italic">
+                        Visualisasi pembagian tanggung jawab biaya. Perhatikan bahwa titik risiko (Risk Transfer) sama untuk keduanya di bawah Incoterms 2020.
                     </p>
-                    <div class="bg-amber-50 p-4 rounded text-sm text-amber-800">
-                        <strong>Quote Materi:</strong> "The best route is not always the shortest one, but the one that delivers value consistently."
-                    </div>
                 </div>
 
-                <!-- Visualization 3: Optimization Impact -->
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <h3 class="text-lg font-bold mb-2">Dampak Optimasi Rute</h3>
-                    <p class="text-xs text-gray-500 mb-4">Perbandingan Metrik Sebelum vs Sesudah Optimasi</p>
-                    <div class="chart-container h-64">
-                        <canvas id="routeBarChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SOAL 4: BIAYA & EKONOMI -->
-        <section id="biaya" class="scroll-mt-24">
-            <div class="border-l-4 border-green-500 pl-4 mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">4. Ekonomi & Struktur Biaya</h2>
-                <p class="text-gray-500 mt-1">Ref: Pertemuan 4 - Biaya dan Ekonomi Freight</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <!-- Visualization 4: Cost Structure -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Struktur Biaya Operasional Truk (Trucking)</h3>
-                    <div class="chart-container h-80">
-                        <canvas id="costStackChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="space-y-6 flex flex-col justify-center">
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h4 class="font-bold text-gray-900 text-lg mb-2">Economies of Scale</h4>
-                        <p class="text-gray-700">
-                            Prinsip dasar ekonomi freight: Semakin besar volume yang diangkut dalam satu kali perjalanan, semakin rendah biaya per unit (Cost per Unit).
-                        </p>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h4 class="font-bold text-gray-900 text-lg mb-2">Fixed vs Variable Cost</h4>
-                        <ul class="list-disc pl-5 text-gray-700 space-y-2">
-                            <li><strong>Fixed Cost:</strong> Depresiasi kendaraan, Asuransi, Gaji pokok manajemen. (Harus dibayar jalan atau tidak).</li>
-                            <li><strong>Variable Cost:</strong> BBM, Ban, Tol, Uang jalan supir. (Hanya muncul saat roda berputar).</li>
+                <!-- The Answer: Who Bears the Risk? -->
+                <div class="bg-white rounded-xl card-shadow p-6 flex flex-col justify-center space-y-6">
+                    <h4 class="font-bold text-lg text-center mb-2">Siapa Menanggung Risiko?</h4>
+                    
+                    <!-- Scenario A: Delay -->
+                    <div class="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                        <h5 class="font-bold text-orange-700 flex items-center text-lg">
+                            <span class="text-2xl mr-2">⏱️</span> Keterlambatan Kapal (2 Hari)
+                        </h5>
+                        <ul class="mt-2 space-y-2 text-sm text-gray-700">
+                            <li><strong>FOB:</strong> <span class="font-bold text-red-600">Risiko Pembeli.</span> Pembeli wajib menominasikan kapal. Jika kapal telat, biaya penyimpanan/demurrage ditanggung Pembeli.</li>
+                            <li><strong>CIF:</strong> <span class="font-bold text-blue-600">Risiko Penjual.</span> Penjual yang mengontrak kapal. Penjual menanggung biaya akibat keterlambatan kedatangan kapal.</li>
                         </ul>
                     </div>
-                </div>
-            </div>
-        </section>
 
-         <!-- SOAL 5: REGULASI (INCOTERMS) -->
-         <section id="regulasi" class="scroll-mt-24">
-            <div class="border-l-4 border-pink-500 pl-4 mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">5. Regulasi & Incoterms 2020</h2>
-                <p class="text-gray-500 mt-1">Ref: Pertemuan 4 (Reading Assignment) & Umum</p>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">Titik Transfer Risiko & Biaya</h3>
-                    <p class="text-gray-600">Visualisasi kapan tanggung jawab berpindah dari Penjual (Seller) ke Pembeli (Buyer).</p>
-                </div>
-                <!-- Plotly Container for Gantt/Timeline -->
-                <div id="incotermChart" class="w-full h-96"></div>
-                <div class="mt-4 text-xs text-gray-500 text-center">
-                    Grafik menunjukkan seberapa jauh "Penjual" bertanggung jawab dalam rantai pasok.
-                </div>
-            </div>
-        </section>
-
-        <!-- SOAL 6: DIGITALISASI -->
-        <section id="digital" class="scroll-mt-24">
-             <div class="border-l-4 border-indigo-600 pl-4 mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">6. Digitalisasi: IoT & AI</h2>
-                <p class="text-gray-500 mt-1">Ref: Pertemuan - Digitalisasi & Teknologi</p>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-8 items-center">
-                 <div class="md:w-1/2">
-                    <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                        Penerapan TMS (Transport Management System) dan IoT Sensor memberikan <strong>Real-time Visibility</strong>. Ini mengubah freight management dari reaktif menjadi proaktif.
-                    </p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-indigo-50 p-4 rounded border border-indigo-100">
-                            <span class="block font-bold text-indigo-700">Predictive</span>
-                            <span class="text-xs text-gray-600">AI memprediksi delay sebelum terjadi.</span>
-                        </div>
-                        <div class="bg-indigo-50 p-4 rounded border border-indigo-100">
-                            <span class="block font-bold text-indigo-700">Paperless</span>
-                            <span class="text-xs text-gray-600">e-POD (Proof of Delivery) digital.</span>
+                    <!-- Scenario B: Damage -->
+                    <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600">
+                        <h5 class="font-bold text-blue-800 flex items-center text-lg">
+                            <span class="text-2xl mr-2">💥</span> Kerusakan Muatan (5%)
+                        </h5>
+                        <p class="text-sm mt-1 mb-2 font-semibold">Lokasi: "Di Pelabuhan Muat" (Sebelum On Board)</p>
+                        <div class="text-sm text-gray-700">
+                            <p>Dalam Incoterms 2020, risiko berpindah saat barang <strong>"On Board"</strong> (di atas kapal).</p>
+                            <p class="mt-2 font-bold text-red-600">Kesimpulan: Penjual (PT Jadi Berkah) Menanggung Rugi.</p>
+                            <p class="text-xs text-gray-500 mt-1">Baik FOB maupun CIF, karena kerusakan terjadi <em>sebelum</em> barang berada di atas kapal, risiko belum beralih ke pembeli.</p>
                         </div>
                     </div>
-                 </div>
-                 <div class="md:w-1/2 w-full">
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                         <h3 class="text-sm font-bold text-gray-500 uppercase mb-2">Adopsi Teknologi (Projected)</h3>
-                         <div class="chart-container h-64">
-                            <canvas id="techTrendChart"></canvas>
-                        </div>
-                    </div>
-                 </div>
+                </div>
             </div>
         </section>
 
-        <!-- SOAL 7: STUDI KASUS RISIKO -->
-        <section id="risiko" class="scroll-mt-24">
-            <div class="border-l-4 border-red-500 pl-4 mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">7. Studi Kasus: Manajemen Risiko Hyper-local</h2>
-                <p class="text-gray-500 mt-1">Ref: Soal Asesmen - Kasus Pengiriman Frozen Food</p>
+        <!-- Section 3: Customs & FTA Strategy -->
+        <section id="customs" class="bg-gray-100 rounded-2xl p-4 md:p-8">
+            <div class="mb-8 text-center md:text-left">
+                <h3 class="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 inline-block pb-2">3. Strategi: Tiga Instrumen Dasar & FTA</h3>
+                <p class="mt-4 text-gray-600">
+                    Pemanfaatan <strong>Free Trade Agreements (FTA)</strong> yang didukung oleh pemahaman kuat akan 3 Instrumen Dasar Pabean (Klasifikasi, Valuasi, Origin) memberikan keunggulan kompetitif yang signifikan.
+                </p>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-                <div class="bg-red-50 p-6 border-b border-red-100">
-                    <h3 class="text-xl font-bold text-red-800">Skenario: Frozen Food Hyper-local Delivery</h3>
-                    <p class="text-red-700 mt-2">
-                        Analisis risiko untuk sistem pengiriman menggunakan motor pribadi (Crowdsourced), aplikasi mobile, dan IoT box.
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- 3 Pillars Cards -->
+                <div class="md:col-span-1 space-y-4">
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                        <h4 class="font-bold text-blue-700">1. Klasifikasi (HS Code)</h4>
+                        <p class="text-sm text-gray-600">Menentukan tarif bea masuk dasar. Kesalahan kode = denda atau overpaying.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                        <h4 class="font-bold text-blue-700">2. Nilai Pabean (Valuation)</h4>
+                        <p class="text-sm text-gray-600">Dasar penghitungan pajak. Harus transparan dan sesuai aturan WTO.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
+                        <h4 class="font-bold text-orange-600">3. Rules of Origin (RoO)</h4>
+                        <p class="text-sm text-gray-600"><strong>Kunci FTA.</strong> Membuktikan barang asli Indonesia untuk dapat tarif preferensi (0%).</p>
+                    </div>
+                </div>
+
+                <!-- Radar Chart: FTA Impact -->
+                <div class="md:col-span-2 bg-white rounded-xl card-shadow p-6">
+                    <h4 class="font-bold text-lg mb-4 text-center">Dampak Optimalisasi FTA vs Perdagangan Biasa</h4>
+                    <div class="chart-container">
+                        <canvas id="ftaRadarChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center mt-2">
+                        Grafik Radar menunjukkan bagaimana penggunaan FTA memperluas "area keuntungan" bisnis dengan mengurangi biaya tarif dan meningkatkan daya saing pasar, asalkan kepatuhan (RoO) dijaga.
                     </p>
                 </div>
-                
-                <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Risk Matrix Visualization -->
-                    <div class="w-full">
-                        <h4 class="font-bold text-gray-800 mb-4 text-center">Matriks Risiko (Likelihood vs Impact)</h4>
-                        <div class="chart-container h-96">
-                            <canvas id="riskMatrixChart"></canvas>
-                        </div>
-                        <div class="mt-2 flex justify-center space-x-4 text-xs">
-                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 mr-1"></span> Kritis</span>
-                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-yellow-500 mr-1"></span> Sedang</span>
-                            <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-green-500 mr-1"></span> Rendah</span>
-                        </div>
+            </div>
+            
+            <!-- Benefits Breakdown Chart -->
+            <div class="mt-8 bg-white rounded-xl card-shadow p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="chart-container">
+                        <canvas id="benefitsChart"></canvas>
                     </div>
-
-                    <!-- Mitigation Strategy -->
-                    <div class="space-y-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Strategi Mitigasi Utama</h4>
-                        
-                        <!-- Accordion Style Cards -->
-                        <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-red-500">
-                            <h5 class="font-bold text-gray-900">1. Kegagalan Cold Chain (Suhu Naik)</h5>
-                            <p class="text-sm text-gray-600 mt-1">
-                                <strong>Mitigasi Tech:</strong> IoT Sensor memberi alert real-time jika suhu > -5°C. Auto-reroute ke hub terdekat.
-                            </p>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-yellow-500">
-                            <h5 class="font-bold text-gray-900">2. Kebocoran Data (Cyber Risk)</h5>
-                            <p class="text-sm text-gray-600 mt-1">
-                                <strong>Mitigasi Tech:</strong> Enkripsi End-to-End pada aplikasi kurir. Masking nomor telepon pelanggan.
-                            </p>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h5 class="font-bold text-gray-900">3. Kecelakaan / Barang Rusak</h5>
-                            <p class="text-sm text-gray-600 mt-1">
-                                <strong>Transfer Risiko:</strong> Asuransi Cargo All-Risk (Mikro). Kontrak kemitraan yang jelas mengenai liabilitas.
-                            </p>
-                        </div>
-                        
-                        <div class="mt-4 p-4 bg-indigo-900 text-white rounded-lg">
-                            <h5 class="font-bold">Rekomendasi Kebijakan</h5>
-                            <p class="text-sm mt-2 opacity-90">
-                                Negosiasi dengan Pemprov DKI untuk izin khusus angkutan logistik roda dua berbasis aplikasi (payung hukum yang jelas) untuk menghindari risiko regulasi.
-                            </p>
-                        </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">Keuntungan Optimal Ekosistem</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 text-xs font-bold mr-2 mt-1">Eksportir</span>
+                                <span class="text-sm text-gray-700">Produk lebih kompetitif di Jepang (nol tarif), meningkatkan volume penjualan dan profit margin.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-orange-100 text-orange-600 rounded-full px-2 py-0.5 text-xs font-bold mr-2 mt-1">Importir</span>
+                                <span class="text-sm text-gray-700">Biaya landed cost lebih murah, rantai pasok lebih efisien, kepastian pengiriman.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-gray-200 text-gray-700 rounded-full px-2 py-0.5 text-xs font-bold mr-2 mt-1">Negara</span>
+                                <span class="text-sm text-gray-700">Devisa ekspor meningkat, neraca perdagangan positif, dan industri dalam negeri tumbuh.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -399,28 +260,26 @@
 
     </main>
 
-    <footer class="bg-gray-900 text-gray-300 py-12">
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="mb-4">Dibuat untuk memenuhi Tugas UTS Manajemen Logistik & Transportasi.</p>
-            <p class="text-xs text-gray-500">
-                Referensi Data: Materi Pertemuan 1-7, World Bank Logistics Index, Incoterms 2020 Rules.
-                <br>Generated with Tailwind CSS, Chart.js, and Plotly.js. No SVG or Mermaid used.
-            </p>
+            <p class="text-sm opacity-75">Infografis Interaktif dibuat untuk PT Jadi Berkah.</p>
+            <p class="text-xs mt-2 opacity-50">Menggunakan Chart.js & Tailwind CSS. No SVG. No Mermaid.</p>
         </div>
     </footer>
 
-    <!-- SCRIPT SECTION: DATA & LOGIC -->
+    <!-- Scripts for Visualizations -->
     <script>
-        // --- UTILITY: Label Wrapping (Max 16 chars) ---
-        function wrapLabel(label) {
-            if (typeof label !== 'string' || label.length <= 16) return label;
-            const words = label.split(' ');
+        // --- UTILITY: Label Wrapping Function (Mandatory) ---
+        function wrapLabel(str, maxChars) {
+            if (str.length <= maxChars) return str;
+            const words = str.split(' ');
             const lines = [];
             let currentLine = words[0];
 
             for (let i = 1; i < words.length; i++) {
-                if ((currentLine + " " + words[i]).length <= 16) {
-                    currentLine += " " + words[i];
+                if (currentLine.length + 1 + words[i].length <= maxChars) {
+                    currentLine += ' ' + words[i];
                 } else {
                     lines.push(currentLine);
                     currentLine = words[i];
@@ -430,292 +289,153 @@
             return lines;
         }
 
-        // --- COMMON CONFIG ---
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        title: function(tooltipItems) {
-                            const item = tooltipItems[0];
-                            let label = item.chart.data.labels[item.dataIndex];
-                            if (Array.isArray(label)) {
-                                return label.join(' ');
-                            } else {
-                                return label;
-                            }
-                        }
-                    }
-                },
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20
+        // --- UTILITY: Tooltip Configuration (Mandatory) ---
+        const commonTooltipOptions = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                        return label.join(' ');
+                    } else {
+                        return label;
                     }
                 }
             }
         };
 
-        // 1. INTRO CHART (Doughnut)
-        const ctxIntro = document.getElementById('introChart').getContext('2d');
-        const introLabels = ['Biaya Transportasi', 'Biaya Persediaan', 'Biaya Admin & Lainnya'].map(wrapLabel);
-        new Chart(ctxIntro, {
-            type: 'doughnut',
+        // --- CHART 1: Incoterms Cost & Risk Structure (Stacked Bar) ---
+        const ctxIncoterms = document.getElementById('incotermsChart').getContext('2d');
+        const incotermsLabels = ['FOB (Free On Board)', 'CIF (Cost Ins Freight)'].map(l => wrapLabel(l, 16));
+
+        new Chart(ctxIncoterms, {
+            type: 'bar',
             data: {
-                labels: introLabels,
-                datasets: [{
-                    data: [45, 35, 20], // Estimasi umum di Indonesia
-                    backgroundColor: ['#4F46E5', '#06B6D4', '#F59E0B'],
-                    borderWidth: 0
-                }]
+                labels: incotermsLabels,
+                datasets: [
+                    {
+                        label: 'Biaya Produk & Lokal',
+                        data: [40, 40], // Base cost same for both
+                        backgroundColor: '#2563EB', // Blue
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Pengangkutan Utama (Freight) & Asuransi',
+                        data: [0, 30], // FOB: Buyer pays (0 here), CIF: Seller pays (30)
+                        backgroundColor: '#F97316', // Orange
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Tanggungan Pembeli (Buyer)',
+                        data: [30, 0], // In FOB, this cost shifts to Buyer visually here
+                        backgroundColor: '#E5E7EB', // Grey (represented as "not seller cost")
+                        stack: 'Stack 0',
+                        borderWidth: 1,
+                        borderColor: '#9CA3AF',
+                        borderDash: [5, 5]
+                    }
+                ]
             },
             options: {
-                ...commonOptions,
-                cutout: '60%',
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    ...commonOptions.plugins,
                     title: {
                         display: true,
-                        text: 'Komponen Biaya Logistik'
+                        text: 'Komposisi Biaya yang Ditanggung Penjual'
+                    },
+                    tooltip: commonTooltipOptions,
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Unit Biaya (Estimasi)'
+                        }
                     }
                 }
             }
         });
 
-        // 2. MODAL COMPARISON (Radar)
-        const ctxMode = document.getElementById('modeRadarChart').getContext('2d');
-        new Chart(ctxMode, {
+        // --- CHART 2: FTA Impact Radar (Radar Chart) ---
+        const ctxRadar = document.getElementById('ftaRadarChart').getContext('2d');
+        const radarLabels = ['Efisiensi Biaya (Tarif)', 'Kecepatan Clearance', 'Daya Saing Harga', 'Akses Pasar', 'Kompleksitas Dokumen'].map(l => wrapLabel(l, 16));
+
+        new Chart(ctxRadar, {
             type: 'radar',
             data: {
-                labels: ['Kecepatan (Speed)', 'Biaya Rendah (Low Cost)', 'Kapasitas Volume', 'Fleksibilitas Rute', 'Keandalan Cuaca'].map(wrapLabel),
-                datasets: [
-                    {
-                        label: 'Transportasi Udara',
-                        data: [10, 1, 3, 4, 9],
-                        borderColor: '#F59E0B',
-                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                    },
-                    {
-                        label: 'Transportasi Laut',
-                        data: [2, 10, 10, 2, 7],
-                        borderColor: '#06B6D4',
-                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
-                    },
-                    {
-                        label: 'Transportasi Darat',
-                        data: [6, 6, 5, 10, 8],
-                        borderColor: '#4F46E5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                    }
-                ]
-            },
-            options: {
-                ...commonOptions,
-                scales: {
-                    r: {
-                        angleLines: { color: '#E5E7EB' },
-                        grid: { color: '#E5E7EB' },
-                        pointLabels: { font: { size: 12 } },
-                        suggestedMin: 0,
-                        suggestedMax: 10
-                    }
-                }
-            }
-        });
-
-        // 3. ROUTE OPTIMIZATION (Bar)
-        const ctxRoute = document.getElementById('routeBarChart').getContext('2d');
-        const routeLabels = ['Total Jarak (km)', 'Waktu Tempuh (jam)', 'Konsumsi BBM (Liter)'].map(wrapLabel);
-        new Chart(ctxRoute, {
-            type: 'bar',
-            data: {
-                labels: routeLabels,
-                datasets: [
-                    {
-                        label: 'Rute Manual',
-                        data: [150, 8, 45],
-                        backgroundColor: '#9CA3AF',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Optimasi VRP (Software)',
-                        data: [110, 6, 33],
-                        backgroundColor: '#10B981', // Emerald green for success/savings
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                ...commonOptions,
-                plugins: {
-                    ...commonOptions.plugins,
-                    tooltip: {
-                        ...commonOptions.plugins.tooltip,
-                        callbacks: {
-                            ...commonOptions.plugins.tooltip.callbacks,
-                            afterBody: function(tooltipItems) {
-                                return "Efisiensi meningkat ~27%";
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-
-        // 4. COST STRUCTURE (Stacked Bar)
-        const ctxCost = document.getElementById('costStackChart').getContext('2d');
-        new Chart(ctxCost, {
-            type: 'bar',
-            data: {
-                labels: ['Truk Kecil (CDE)', 'Truk Besar (Tronton)'].map(wrapLabel),
-                datasets: [
-                    {
-                        label: 'Fixed Cost (Sewa/Cicilan, Gaji)',
-                        data: [30, 40],
-                        backgroundColor: '#6366F1',
-                    },
-                    {
-                        label: 'Variable: BBM',
-                        data: [40, 35],
-                        backgroundColor: '#F59E0B',
-                    },
-                    {
-                        label: 'Variable: Tol & Maintenance',
-                        data: [30, 25],
-                        backgroundColor: '#14B8A6',
-                    }
-                ]
-            },
-            options: {
-                ...commonOptions,
-                scales: {
-                    x: { stacked: true },
-                    y: { 
-                        stacked: true,
-                        title: { display: true, text: 'Persentase Biaya (%)' },
-                        max: 100
-                    }
-                }
-            }
-        });
-
-        // 5. REGULATION (Plotly Gantt/Timeline)
-        // Using Plotly to visualize Incoterms 2020 responsibility ranges
-        const incotermData = [
-            // EXW
-            { x: [0, 1], y: ['EXW (Ex Works)'], type: 'bar', orientation: 'h', marker: {color: '#EF4444'}, name: 'Seller Cost', hoverinfo: 'name' },
-            { x: [1, 10], y: ['EXW (Ex Works)'], type: 'bar', orientation: 'h', marker: {color: '#E5E7EB'}, name: 'Buyer Cost', hoverinfo: 'name' },
-            // FOB
-            { x: [0, 4], y: ['FOB (Free on Board)'], type: 'bar', orientation: 'h', marker: {color: '#F59E0B'}, name: 'Seller Cost', hoverinfo: 'name', showlegend: false },
-            { x: [4, 6], y: ['FOB (Free on Board)'], type: 'bar', orientation: 'h', marker: {color: '#E5E7EB'}, name: 'Buyer Cost', hoverinfo: 'name', showlegend: false },
-            // CIF
-            { x: [0, 7], y: ['CIF (Cost Ins Freight)'], type: 'bar', orientation: 'h', marker: {color: '#3B82F6'}, name: 'Seller Cost', hoverinfo: 'name', showlegend: false },
-            { x: [7, 3], y: ['CIF (Cost Ins Freight)'], type: 'bar', orientation: 'h', marker: {color: '#E5E7EB'}, name: 'Buyer Cost', hoverinfo: 'name', showlegend: false },
-            // DDP
-            { x: [0, 10], y: ['DDP (Delivered Duty Paid)'], type: 'bar', orientation: 'h', marker: {color: '#10B981'}, name: 'Seller Cost', hoverinfo: 'name', showlegend: false },
-        ];
-
-        const incotermLayout = {
-            barmode: 'stack',
-            title: { text: 'Tanggung Jawab Penjual (Warna) vs Pembeli (Abu)', font: {size: 14} },
-            xaxis: { 
-                range: [0, 10], 
-                tickvals: [0, 2, 4, 7, 10], 
-                ticktext: ['Gudang Asal', 'Port Asal', 'On Board', 'Port Tujuan', 'Gudang Tujuan'],
-                title: 'Rantai Perjalanan Logistik'
-            },
-            yaxis: { automargin: true },
-            margin: { t: 40, b: 40, l: 100, r: 20 },
-            showlegend: false,
-            height: 350
-        };
-
-        Plotly.newPlot('incotermChart', incotermData, incotermLayout, {displayModeBar: false, responsive: true});
-
-        // 6. TECH TREND (Line)
-        const ctxTech = document.getElementById('techTrendChart').getContext('2d');
-        new Chart(ctxTech, {
-            type: 'line',
-            data: {
-                labels: ['2020', '2021', '2022', '2023', '2024', '2025 (Est)'].map(wrapLabel),
+                labels: radarLabels,
                 datasets: [{
-                    label: 'Adopsi IoT & Digital Tracking (%)',
-                    data: [15, 22, 35, 48, 60, 75],
-                    borderColor: '#4F46E5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    label: 'Tanpa FTA (MFN)',
+                    data: [40, 60, 50, 50, 80], // High cost (low efficiency), moderate speed, low competitiveness, low complexity
                     fill: true,
-                    tension: 0.4
+                    backgroundColor: 'rgba(156, 163, 175, 0.2)',
+                    borderColor: 'rgb(156, 163, 175)',
+                    pointBackgroundColor: 'rgb(156, 163, 175)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(156, 163, 175)'
+                }, {
+                    label: 'Dengan FTA (Preferensi)',
+                    data: [90, 85, 95, 90, 60], // High efficiency, fast, high competitive, high access, slightly complex doc (RoO)
+                    fill: true,
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    borderColor: '#2563EB',
+                    pointBackgroundColor: '#2563EB',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#2563EB'
                 }]
             },
             options: {
-                ...commonOptions,
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: commonTooltipOptions,
+                    legend: { position: 'bottom' }
+                },
                 scales: {
-                    y: { beginAtZero: true, max: 100 }
+                    r: {
+                        angleLines: { display: false },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
                 }
             }
         });
 
-        // 7. RISK MATRIX (Bubble)
-        const ctxRisk = document.getElementById('riskMatrixChart').getContext('2d');
-        new Chart(ctxRisk, {
-            type: 'bubble',
+        // --- CHART 3: Benefits Distribution (Doughnut) ---
+        const ctxBenefits = document.getElementById('benefitsChart').getContext('2d');
+        const benefitLabels = ['Keuntungan Eksportir', 'Keuntungan Importir', 'Pendapatan/Ekonomi Negara'].map(l => wrapLabel(l, 16));
+
+        new Chart(ctxBenefits, {
+            type: 'doughnut',
             data: {
-                datasets: [
-                    {
-                        label: 'Risiko Tinggi',
-                        data: [
-                            {x: 8, y: 9, r: 15, label: 'Cold Chain Failure'}, // High Prob, High Impact
-                            {x: 7, y: 8, r: 12, label: 'Data Breach'}
-                        ],
-                        backgroundColor: '#EF4444'
-                    },
-                    {
-                        label: 'Risiko Sedang',
-                        data: [
-                            {x: 5, y: 6, r: 10, label: 'Traffic Accident'},
-                            {x: 6, y: 4, r: 10, label: 'Server Downtime'}
-                        ],
-                        backgroundColor: '#F59E0B'
-                    },
-                    {
-                        label: 'Risiko Rendah',
-                        data: [
-                            {x: 2, y: 3, r: 8, label: 'Minor Delay'},
-                            {x: 3, y: 2, r: 8, label: 'Driver Absen'}
-                        ],
-                        backgroundColor: '#10B981'
-                    }
-                ]
+                labels: benefitLabels,
+                datasets: [{
+                    label: 'Distribusi Nilai Tambah',
+                    data: [40, 35, 25],
+                    backgroundColor: [
+                        '#2563EB', // Blue
+                        '#F97316', // Orange
+                        '#10B981'  // Green
+                    ],
+                    hoverOffset: 4
+                }]
             },
             options: {
-                ...commonOptions,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    ...commonOptions.plugins,
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.raw.label + ` (Prob: ${context.raw.x}, Impact: ${context.raw.y})`;
-                            }
-                        }
-                    },
+                    tooltip: commonTooltipOptions,
+                    legend: { position: 'bottom' },
                     title: {
                         display: true,
-                        text: 'X: Kemungkinan (Likelihood) | Y: Dampak (Impact)'
-                    }
-                },
-                scales: {
-                    x: { 
-                        min: 0, max: 10, 
-                        title: { display: true, text: 'Likelihood (1-10)' } 
-                    },
-                    y: { 
-                        min: 0, max: 10,
-                        title: { display: true, text: 'Impact (1-10)' }
+                        text: 'Distribusi Nilai Tambah FTA'
                     }
                 }
             }

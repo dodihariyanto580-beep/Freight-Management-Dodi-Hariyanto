@@ -3,444 +3,745 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisis Ekspor: Incoterms & Strategi Pabean</title>
+    <title>Interactive Logistics Analysis - S2</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@300;500;700&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Plotly.js -->
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
     <style>
-        /* Custom Font Import */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        /* --- THEME CONFIG --- */
+        :root {
+            --bg-deep: #0f172a;
+            --glass: rgba(30, 41, 59, 0.7);
+            --border-glass: rgba(148, 163, 184, 0.1);
+            --neon-blue: #3b82f6;
+            --neon-cyan: #06b6d4;
+            --neon-amber: #f59e0b;
+            --neon-red: #ef4444;
+            --neon-green: #22c55e;
+        }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #F3F4F6; /* Light Grey background */
-            color: #1F2937; /* Dark Grey text */
+            background-color: var(--bg-deep);
+            color: #f1f5f9;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            cursor: default;
         }
 
-        /* Chart Container Styling - Mandatory Requirements */
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 400px;
+        /* --- BACKGROUND PARALLAX --- */
+        .parallax-bg {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #020617 80%);
+            z-index: -2;
+            transition: transform 0.1s ease-out;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            transition: transform 0.5s ease-out;
+            opacity: 0.3;
         }
 
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-            }
+        /* --- TYPOGRAPHY --- */
+        .font-header { font-family: 'Space Grotesk', sans-serif; }
+        .font-code { font-family: 'Fira Code', monospace; }
+
+        /* --- SLIDE SYSTEM --- */
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 2.5rem 4rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95) translateY(30px);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow-y: auto;
         }
 
-        /* Palette Classes for JS Reference */
-        :root {
-            --color-primary: #2563EB; /* Vibrant Blue */
-            --color-secondary: #F97316; /* Energetic Orange */
-            --color-accent: #10B981; /* Green for positive */
-            --color-danger: #EF4444; /* Red for risk */
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            z-index: 10;
         }
 
-        .gradient-text {
-            background: linear-gradient(to right, #2563EB, #F97316);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* --- COMPONENT STYLES --- */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .glass-card:hover {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.2);
         }
 
-        .card-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s;
+        .reg-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            display: inline-block;
+            margin-bottom: 0.5rem;
         }
-        
-        .card-shadow:hover {
+
+        /* --- INTERACTIVE BUTTONS --- */
+        .btn-interactive {
+            background: linear-gradient(135deg, var(--neon-blue), #2563eb);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-interactive:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+        .btn-interactive:active {
+            transform: translateY(1px);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes stamp-slam {
+            0% { opacity: 0; transform: scale(5) rotate(0deg); }
+            50% { opacity: 1; transform: scale(0.8) rotate(-10deg); }
+            70% { transform: scale(1.1) rotate(-10deg); }
+            100% { transform: scale(1) rotate(-10deg); }
+        }
+        .stamp-reveal {
+            animation: stamp-slam 0.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+        }
+
+        /* Ship Animation Class (Triggered by JS) */
+        .sailing {
+            animation: sail-across 5s linear forwards;
+        }
+        @keyframes sail-across {
+            0% { left: 10%; transform: translateX(0) scale(1); }
+            50% { transform: translateX(0) scale(1.1) rotate(2deg); }
+            100% { left: 85%; transform: translateX(0) scale(1); }
+        }
+
+        /* Entrance Stagger */
+        .slide.active .animate-enter { animation: slideUpFade 0.8s forwards; opacity: 0; }
+        .slide.active .delay-1 { animation-delay: 0.1s; }
+        .slide.active .delay-2 { animation-delay: 0.2s; }
+        .slide.active .delay-3 { animation-delay: 0.3s; }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- CALCULATOR INPUTS --- */
+        .calc-input {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #475569;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-family: 'Fira Code', monospace;
+        }
+        .calc-input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+        }
+
+        /* --- PRINT FIXES --- */
+        @media print {
+            body { overflow: visible !important; background: #fff !important; color: #000 !important; }
+            .slide { position: relative !important; page-break-after: always !important; opacity: 1 !important; visibility: visible !important; transform: none !important; height: 100vh !important; display: block !important; padding: 20px !important; margin: 0 !important; background: white !important; }
+            .no-print, .progress-bar, #nav-controls { display: none !important; }
+            .glass-card { background: none !important; border: 1px solid #ccc !important; color: #000 !important; box-shadow: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; text-shadow: none !important; }
+            .hidden-on-print { display: none !important; }
+            .text-white { color: #000 !important; }
+            .text-slate-300, .text-slate-400 { color: #333 !important; }
         }
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <!-- Header Section -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-blue-600">Canvas<span class="text-orange-500">Info</span></h1>
-            <nav class="hidden md:flex space-x-6 text-sm font-semibold text-gray-600">
-                <a href="#overview" class="hover:text-blue-600">Studi Kasus</a>
-                <a href="#incoterms" class="hover:text-blue-600">Analisis Risiko</a>
-                <a href="#customs" class="hover:text-blue-600">Strategi Pabean</a>
-            </nav>
+    <!-- Background Parallax -->
+    <div class="parallax-bg" id="bg-layer"></div>
+    <div class="orb bg-blue-600 w-[600px] h-[600px] top-[10%] left-[20%]" id="orb1"></div>
+    <div class="orb bg-purple-600 w-[500px] h-[500px] bottom-[10%] right-[10%]" id="orb2"></div>
+
+    <!-- Progress Bar -->
+    <div id="progress" class="fixed bottom-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 z-50 transition-all duration-300" style="width: 0%"></div>
+
+    <!-- Controls -->
+    <div id="nav-controls" class="fixed bottom-6 right-8 z-50 flex gap-4">
+        <button onclick="window.print()" class="h-12 px-6 rounded-full border border-slate-600 bg-slate-800 hover:bg-slate-700 text-white flex items-center gap-2 transition hover:scale-105 shadow-xl" title="Save as PDF">
+            <i class="fa-solid fa-file-pdf text-red-400"></i> <span class="text-sm font-bold">PDF</span>
+        </button>
+
+        <button onclick="changeSlide(-1)" class="w-12 h-12 rounded-full border border-slate-600 bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition hover:scale-110 shadow-xl">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="px-4 h-12 rounded-full border border-slate-600 bg-slate-800 flex items-center justify-center font-code text-sm shadow-xl">
+            <span id="page-num">01</span> / 16
         </div>
-    </header>
+        <button onclick="changeSlide(1)" class="w-12 h-12 rounded-full border border-blue-500 bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transition hover:scale-110">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    <!-- === SLIDES === -->
 
-        <!-- Title & Intro -->
-        <section class="text-center mb-12">
-            <h2 class="text-4xl md:text-5xl font-extrabold mb-4 gradient-text">Analisis Strategis: Ekspor Palm Kernel Expeller</h2>
-            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                Membedah implikasi risiko Incoterms 2020 (FOB vs CIF) dan optimalisasi keuntungan melalui instrumen dasar kepabeanan dan FTA dalam studi kasus PT Jadi Berkah.
+    <!-- SLIDE 1: COVER -->
+    <div class="slide active" id="s1">
+        <div class="h-full flex flex-col justify-center items-center text-center relative z-10">
+            <div class="reg-tag mb-6 animate-enter">STUDI KASUS MANAJEMEN LOGISTIK</div>
+            <h1 class="text-7xl font-header font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-slate-400 animate-enter delay-1 drop-shadow-lg">
+                ANALISIS STRATEGIS<br>EKSPOR & KEPABEANAN
+            </h1>
+            <p class="text-2xl text-slate-400 max-w-3xl mb-12 animate-enter delay-2">
+                Evaluasi Risiko Incoterms® 2020 dan Optimasi Fiskal melalui <i>Three Basics of Customs Laws</i>
             </p>
-        </section>
-
-        <!-- Section 1: Overview (Flow Diagram via HTML/CSS - NO SVG) -->
-        <section id="overview" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-3 bg-white rounded-xl card-shadow p-6 border-l-4 border-blue-600">
-                <h3 class="text-xl font-bold mb-4 text-gray-800">1. Profil Transaksi (The Deal)</h3>
-                <p class="mb-6 text-gray-600">
-                    PT Jadi Berkah mengekspor komoditas curah ke Jepang. Pemilihan Incoterms akan menentukan siapa yang menanggung kerugian akibat keterlambatan kapal dan kerusakan muatan.
-                </p>
-                
-                <!-- HTML-based Process Flow -->
-                <div class="flex flex-col md:flex-row justify-between items-center text-center space-y-6 md:space-y-0">
-                    <!-- Step 1 -->
-                    <div class="flex flex-col items-center flex-1">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl mb-2">🏭</div>
-                        <h4 class="font-bold text-blue-800">PT Jadi Berkah</h4>
-                        <p class="text-xs text-gray-500">Jakarta (Tanjung Priok)</p>
-                        <p class="text-sm font-semibold mt-1">1.500 Ton PKE</p>
-                    </div>
-                    
-                    <!-- Arrow -->
-                    <div class="hidden md:block flex-1 border-t-2 border-dashed border-gray-300 relative">
-                        <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-gray-400 text-xl">▶</span>
-                    </div>
-
-                    <!-- Incident Marker -->
-                    <div class="flex flex-col items-center flex-1 relative">
-                         <div class="absolute -top-4 -right-4 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse shadow-lg">Masalah!</div>
-                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-3xl mb-2">⚓</div>
-                        <h4 class="font-bold text-orange-600">Pelabuhan Muat</h4>
-                        <p class="text-xs text-gray-500">Tanjung Priok</p>
-                        <div class="mt-2 text-xs bg-red-50 border border-red-200 text-red-700 p-2 rounded">
-                            <span class="font-bold">Insiden:</span><br>
-                            Telat 2 Hari<br>
-                            Rusak 5%
-                        </div>
-                    </div>
-
-                    <!-- Arrow -->
-                    <div class="hidden md:block flex-1 border-t-2 border-dashed border-gray-300 relative">
-                        <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-gray-400 text-xl">▶</span>
-                    </div>
-
-                    <!-- Step 3 -->
-                    <div class="flex flex-col items-center flex-1">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-3xl mb-2">🇯🇵</div>
-                        <h4 class="font-bold text-blue-800">Yokohama Feed</h4>
-                        <p class="text-xs text-gray-500">Pelabuhan Yokohama</p>
-                        <p class="text-sm font-semibold mt-1">Pembeli</p>
-                    </div>
+            
+            <div class="glass-card px-8 py-6 flex gap-12 animate-enter delay-3 hover:scale-105 transition-transform">
+                <div class="text-left">
+                    <p class="text-xs text-slate-400 font-code mb-1">MAHASISWA</p>
+                    <p class="font-bold text-xl text-white">DODI HARIYANTO</p>
+                </div>
+                <div class="w-px bg-slate-600"></div>
+                <div class="text-left">
+                    <p class="text-xs text-slate-400 font-code mb-1">PROGRAM</p>
+                    <p class="font-bold text-xl text-cyan-400">S2 MANAJEMEN LOGISTIK</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <!-- Section 2: Incoterms Analysis -->
-        <section id="incoterms">
-            <div class="mb-6">
-                <h3 class="text-2xl font-bold text-gray-800 border-b-2 border-orange-500 inline-block pb-2">2. Analisis Risiko: FOB vs CIF</h3>
-                <p class="mt-4 text-gray-600">
-                    Perbedaan mendasar antara <strong>Free On Board (FOB)</strong> dan <strong>Cost, Insurance, and Freight (CIF)</strong> terletak pada biaya pengiriman, namun titik peralihan risiko (Risk Transfer) seringkali disalahpahami. Grafik di bawah membandingkan komponen biaya dan kewajiban.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Chart: Cost Structure & Risk Point -->
-                <div class="bg-white rounded-xl card-shadow p-6 flex flex-col">
-                    <h4 class="font-bold text-lg mb-4 text-center">Struktur Biaya & Titik Risiko</h4>
-                    <div class="chart-container flex-grow">
-                        <canvas id="incotermsChart"></canvas>
-                    </div>
-                    <p class="text-xs text-gray-500 text-center mt-2 italic">
-                        Visualisasi pembagian tanggung jawab biaya. Perhatikan bahwa titik risiko (Risk Transfer) sama untuk keduanya di bawah Incoterms 2020.
-                    </p>
-                </div>
-
-                <!-- The Answer: Who Bears the Risk? -->
-                <div class="bg-white rounded-xl card-shadow p-6 flex flex-col justify-center space-y-6">
-                    <h4 class="font-bold text-lg text-center mb-2">Siapa Menanggung Risiko?</h4>
-                    
-                    <!-- Scenario A: Delay -->
-                    <div class="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
-                        <h5 class="font-bold text-orange-700 flex items-center text-lg">
-                            <span class="text-2xl mr-2">⏱️</span> Keterlambatan Kapal (2 Hari)
-                        </h5>
-                        <ul class="mt-2 space-y-2 text-sm text-gray-700">
-                            <li><strong>FOB:</strong> <span class="font-bold text-red-600">Risiko Pembeli.</span> Pembeli wajib menominasikan kapal. Jika kapal telat, biaya penyimpanan/demurrage ditanggung Pembeli.</li>
-                            <li><strong>CIF:</strong> <span class="font-bold text-blue-600">Risiko Penjual.</span> Penjual yang mengontrak kapal. Penjual menanggung biaya akibat keterlambatan kedatangan kapal.</li>
-                        </ul>
-                    </div>
-
-                    <!-- Scenario B: Damage -->
-                    <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600">
-                        <h5 class="font-bold text-blue-800 flex items-center text-lg">
-                            <span class="text-2xl mr-2">💥</span> Kerusakan Muatan (5%)
-                        </h5>
-                        <p class="text-sm mt-1 mb-2 font-semibold">Lokasi: "Di Pelabuhan Muat" (Sebelum On Board)</p>
-                        <div class="text-sm text-gray-700">
-                            <p>Dalam Incoterms 2020, risiko berpindah saat barang <strong>"On Board"</strong> (di atas kapal).</p>
-                            <p class="mt-2 font-bold text-red-600">Kesimpulan: Penjual (PT Jadi Berkah) Menanggung Rugi.</p>
-                            <p class="text-xs text-gray-500 mt-1">Baik FOB maupun CIF, karena kerusakan terjadi <em>sebelum</em> barang berada di atas kapal, risiko belum beralih ke pembeli.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 3: Customs & FTA Strategy -->
-        <section id="customs" class="bg-gray-100 rounded-2xl p-4 md:p-8">
-            <div class="mb-8 text-center md:text-left">
-                <h3 class="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 inline-block pb-2">3. Strategi: Tiga Instrumen Dasar & FTA</h3>
-                <p class="mt-4 text-gray-600">
-                    Pemanfaatan <strong>Free Trade Agreements (FTA)</strong> yang didukung oleh pemahaman kuat akan 3 Instrumen Dasar Pabean (Klasifikasi, Valuasi, Origin) memberikan keunggulan kompetitif yang signifikan.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- 3 Pillars Cards -->
-                <div class="md:col-span-1 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-                        <h4 class="font-bold text-blue-700">1. Klasifikasi (HS Code)</h4>
-                        <p class="text-sm text-gray-600">Menentukan tarif bea masuk dasar. Kesalahan kode = denda atau overpaying.</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-                        <h4 class="font-bold text-blue-700">2. Nilai Pabean (Valuation)</h4>
-                        <p class="text-sm text-gray-600">Dasar penghitungan pajak. Harus transparan dan sesuai aturan WTO.</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow border-l-4 border-orange-500">
-                        <h4 class="font-bold text-orange-600">3. Rules of Origin (RoO)</h4>
-                        <p class="text-sm text-gray-600"><strong>Kunci FTA.</strong> Membuktikan barang asli Indonesia untuk dapat tarif preferensi (0%).</p>
-                    </div>
-                </div>
-
-                <!-- Radar Chart: FTA Impact -->
-                <div class="md:col-span-2 bg-white rounded-xl card-shadow p-6">
-                    <h4 class="font-bold text-lg mb-4 text-center">Dampak Optimalisasi FTA vs Perdagangan Biasa</h4>
-                    <div class="chart-container">
-                        <canvas id="ftaRadarChart"></canvas>
-                    </div>
-                    <p class="text-xs text-gray-500 text-center mt-2">
-                        Grafik Radar menunjukkan bagaimana penggunaan FTA memperluas "area keuntungan" bisnis dengan mengurangi biaya tarif dan meningkatkan daya saing pasar, asalkan kepatuhan (RoO) dijaga.
-                    </p>
-                </div>
+    <!-- SLIDE 2: INTERACTIVE SHIPMENT -->
+    <div class="slide" id="s2">
+        <h2 class="text-4xl font-header font-bold mb-8 border-l-4 border-blue-500 pl-4 text-blue-100">1. PROFIL TRANSAKSI</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
+            <div class="glass-card p-8 animate-enter">
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-3"><i class="fa-solid fa-file-contract text-amber-500"></i> Data Kontrak</h3>
+                <ul class="space-y-4 font-light text-lg">
+                    <li class="flex justify-between border-b border-slate-700 pb-2">
+                        <span>Eksportir</span> <strong class="text-blue-400">PT Jadi Berkah (ID)</strong>
+                    </li>
+                    <li class="flex justify-between border-b border-slate-700 pb-2">
+                        <span>Importir</span> <strong class="text-purple-400">Yokohama Feed (JP)</strong>
+                    </li>
+                    <li class="flex justify-between border-b border-slate-700 pb-2">
+                        <span>Komoditas</span> <strong>Palm Kernel Expeller</strong>
+                    </li>
+                    <li class="flex justify-between border-b border-slate-700 pb-2">
+                        <span>Volume</span> <strong>1.500 Ton</strong>
+                    </li>
+                </ul>
             </div>
             
-            <!-- Benefits Breakdown Chart -->
-            <div class="mt-8 bg-white rounded-xl card-shadow p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div class="chart-container">
-                        <canvas id="benefitsChart"></canvas>
+            <!-- Interactive Map -->
+            <div class="glass-card p-0 relative overflow-hidden animate-enter delay-1 flex flex-col justify-center bg-slate-900">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                
+                <div class="relative w-full h-48 flex items-center">
+                    <div class="w-full h-1 bg-slate-700 absolute top-1/2 left-0"></div>
+                    
+                    <!-- Ports -->
+                    <div class="absolute left-[10%] top-1/2 -translate-y-1/2 flex flex-col items-center z-10">
+                        <div class="w-6 h-6 bg-blue-500 rounded-full border-4 border-slate-800 shadow-[0_0_20px_rgba(59,130,246,0.8)]"></div>
+                        <span class="mt-4 font-bold text-xs bg-slate-900 px-2 py-1 rounded">JAKARTA</span>
                     </div>
-                    <div>
-                        <h4 class="text-xl font-bold text-gray-800 mb-3">Keuntungan Optimal Ekosistem</h4>
-                        <ul class="space-y-3">
-                            <li class="flex items-start">
-                                <span class="bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 text-xs font-bold mr-2 mt-1">Eksportir</span>
-                                <span class="text-sm text-gray-700">Produk lebih kompetitif di Jepang (nol tarif), meningkatkan volume penjualan dan profit margin.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="bg-orange-100 text-orange-600 rounded-full px-2 py-0.5 text-xs font-bold mr-2 mt-1">Importir</span>
-                                <span class="text-sm text-gray-700">Biaya landed cost lebih murah, rantai pasok lebih efisien, kepastian pengiriman.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="bg-gray-200 text-gray-700 rounded-full px-2 py-0.5 text-xs font-bold mr-2 mt-1">Negara</span>
-                                <span class="text-sm text-gray-700">Devisa ekspor meningkat, neraca perdagangan positif, dan industri dalam negeri tumbuh.</span>
-                            </li>
-                        </ul>
+
+                    <div class="absolute right-[10%] top-1/2 -translate-y-1/2 flex flex-col items-center z-10">
+                        <div class="w-6 h-6 bg-purple-500 rounded-full border-4 border-slate-800 shadow-[0_0_20px_rgba(168,85,247,0.8)]"></div>
+                        <span class="mt-4 font-bold text-xs bg-slate-900 px-2 py-1 rounded">YOKOHAMA</span>
+                    </div>
+
+                    <!-- Ship -->
+                    <i id="ship-anim" class="fa-solid fa-ship text-4xl text-cyan-400 absolute top-[35%] left-[10%] drop-shadow-lg transition-transform"></i>
+                </div>
+
+                <!-- Control -->
+                <div class="absolute bottom-6 w-full text-center">
+                    <button onclick="startShipment()" class="btn-interactive">
+                        <i class="fa-solid fa-play"></i> START SHIPMENT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: INCIDENT -->
+    <div class="slide" id="s3">
+        <h2 class="text-4xl font-header font-bold mb-8 border-l-4 border-red-500 pl-4 text-red-100">2. KRONOLOGI INSIDEN</h2>
+        
+        <div class="grid grid-cols-3 gap-6 mt-12">
+            <!-- Card 1 -->
+            <div class="glass-card p-6 text-center animate-enter group hover:bg-slate-800 transition cursor-help" title="Waktu kedatangan kapal yang disepakati">
+                <div class="w-16 h-16 bg-slate-800 border-4 border-blue-500 rounded-full mx-auto flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                    <i class="fa-regular fa-calendar-check text-2xl text-blue-400"></i>
+                </div>
+                <h3 class="font-bold text-blue-400">Jadwal Laycan</h3>
+                <p class="text-sm text-slate-400 mt-2">Agreed Arrival Date</p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="glass-card p-6 text-center animate-enter delay-1 group hover:bg-slate-800 transition border-red-500/50">
+                <div class="w-16 h-16 bg-slate-800 border-4 border-red-500 rounded-full mx-auto flex items-center justify-center mb-4 relative group-hover:scale-110 transition">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl text-red-500"></i>
+                    <div class="absolute -top-8 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-bounce">2 HARI</div>
+                </div>
+                <h3 class="font-bold text-red-400">Delay Kapal</h3>
+                <p class="text-sm text-slate-400 mt-2">Gagal Sandar (Missed Laycan)</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="glass-card p-6 text-center animate-enter delay-2 group hover:bg-slate-800 transition border-amber-500/50">
+                <div class="w-16 h-16 bg-slate-800 border-4 border-amber-500 rounded-full mx-auto flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-cloud-showers-heavy text-2xl text-amber-500"></i>
+                </div>
+                <h3 class="font-bold text-amber-400">Kerusakan 5%</h3>
+                <p class="text-sm text-slate-400 mt-2">Rusak di Dermaga (Pre-loading)</p>
+            </div>
+        </div>
+
+        <div class="mt-12 text-center animate-enter delay-3">
+            <p class="text-2xl font-light">"Siapa yang membayar kerugian ini?"</p>
+            <div class="flex justify-center gap-4 mt-4">
+                <span class="px-4 py-2 bg-slate-800 rounded-lg border border-slate-600 text-slate-400">Skenario FOB?</span>
+                <span class="px-4 py-2 bg-slate-800 rounded-lg border border-slate-600 text-slate-400">Skenario CIF?</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: LAW -->
+    <div class="slide" id="s4">
+        <h2 class="text-4xl font-header font-bold mb-8 border-l-4 border-blue-500 pl-4">3. DASAR HUKUM</h2>
+        <div class="grid grid-cols-2 gap-8 h-full">
+            <div class="glass-card p-8 flex flex-col justify-center animate-enter">
+                <div class="mb-6">
+                    <div class="reg-tag">REFERENSI UTAMA</div>
+                    <h3 class="text-4xl font-bold mt-2">Incoterms® 2020</h3>
+                    <p class="text-slate-400 italic">ICC Publication No. 723</p>
+                </div>
+                <p class="text-lg leading-relaxed text-slate-300">
+                    Fokus utama analisis:
+                    <br><strong class="text-white text-xl block mt-4 border-l-4 border-blue-500 pl-4">Transfer of Risk (B3/A3)</strong>
+                    <span class="text-sm">Kapan tanggung jawab kerusakan beralih?</span>
+                </p>
+            </div>
+            <div class="glass-card p-8 bg-slate-800/50 animate-enter delay-1">
+                <h4 class="font-code text-cyan-400 mb-6 border-b border-slate-600 pb-2">PASAL KUNCI</h4>
+                <div class="space-y-4">
+                    <div class="p-3 bg-slate-900 rounded border border-slate-700 hover:border-blue-500 transition">
+                        <span class="text-blue-400 font-bold">A2/B2 Delivery</span>
+                        <p class="text-xs text-slate-500">Penyerahan fisik barang</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded border border-slate-700 hover:border-red-500 transition">
+                        <span class="text-red-400 font-bold">A3/B3 Transfer of Risk</span>
+                        <p class="text-xs text-slate-500">Peralihan risiko finansial</p>
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded border border-slate-700 hover:border-amber-500 transition">
+                        <span class="text-amber-400 font-bold">A4/B4 Carriage</span>
+                        <p class="text-xs text-slate-500">Siapa yang menyewa kapal?</p>
                     </div>
                 </div>
             </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-sm opacity-75">Infografis Interaktif dibuat untuk PT Jadi Berkah.</p>
-            <p class="text-xs mt-2 opacity-50">Menggunakan Chart.js & Tailwind CSS. No SVG. No Mermaid.</p>
         </div>
-    </footer>
+    </div>
 
-    <!-- Scripts for Visualizations -->
+    <!-- SLIDE 5: FOB INTERACTIVE JUDGEMENT -->
+    <div class="slide" id="s5">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-4xl font-header font-bold text-green-400">SKENARIO A: FOB</h2>
+            <div class="reg-tag bg-green-900/30 text-green-400">Free On Board</div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-12 items-center">
+            <div class="glass-card p-8 animate-enter">
+                <h3 class="text-xl font-bold mb-4">Analisis Fakta</h3>
+                <ul class="space-y-3 text-slate-300">
+                    <li><i class="fa-solid fa-user-tag text-green-500 w-6"></i> <strong>Kapal:</strong> Tanggung jawab Pembeli.</li>
+                    <li><i class="fa-solid fa-clock text-red-500 w-6"></i> <strong>Delay 2 Hari:</strong> Kesalahan Pembeli.</li>
+                    <li><i class="fa-solid fa-gavel text-amber-500 w-6"></i> <strong>Rule B3:</strong> Risiko beralih prematur jika pembeli gagal.</li>
+                </ul>
+                <div class="mt-6 p-4 bg-slate-900 rounded text-sm italic border-l-2 border-slate-600">
+                    "The buyer bears all risks... from the agreed date... if the ship fails to arrive."
+                </div>
+            </div>
+
+            <!-- Interactive Judgement Area -->
+            <div class="text-center animate-enter delay-1 relative h-64 flex flex-col items-center justify-center">
+                <p class="text-slate-400 mb-6">Siapa yang menanggung kerusakan 5%?</p>
+                <button onclick="revealVerdict('fob')" id="btn-fob" class="btn-interactive">
+                    <i class="fa-solid fa-gavel"></i> KETUK PALU VONIS
+                </button>
+                
+                <!-- Hidden Verdict -->
+                <div id="verdict-fob" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div class="border-4 border-red-500 text-red-500 font-black text-4xl p-4 rounded rotate-[-10deg] bg-slate-900/90 shadow-[0_0_50px_rgba(239,68,68,0.5)] whitespace-nowrap stamp-reveal">
+                        PEMBELI BERSALAH
+                    </div>
+                    <p class="mt-12 text-green-400 font-bold bg-slate-900 px-3 py-1 rounded">PT JADI BERKAH: AMAN</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: FOB EXPLANATION -->
+    <div class="slide" id="s6">
+        <h2 class="text-3xl font-header font-bold mb-6 text-red-400">THE TRAP: PREMATURE RISK TRANSFER</h2>
+        <div class="glass-card p-8 border-red-500/30 animate-enter flex gap-6 items-center">
+            <i class="fa-solid fa-book-skull text-6xl text-red-500"></i>
+            <div>
+                <h3 class="text-2xl font-bold text-white">Pasal B3 Incoterms 2020</h3>
+                <p class="text-lg text-slate-300 mt-2">
+                    Meskipun barang belum naik kapal ("On Board"), hukum menghukum pembeli yang lalai. Risiko dipaksa beralih ke pembeli sejak tanggal kapal seharusnya tiba.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: CIF INTERACTIVE JUDGEMENT -->
+    <div class="slide" id="s7">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-4xl font-header font-bold text-purple-400">SKENARIO B: CIF</h2>
+            <div class="reg-tag bg-purple-900/30 text-purple-400">Cost, Insurance, Freight</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-12 items-center">
+            <div class="glass-card p-8 animate-enter">
+                <h3 class="text-xl font-bold mb-4">Analisis Fakta</h3>
+                <ul class="space-y-3 text-slate-300">
+                    <li><i class="fa-solid fa-user-tag text-purple-500 w-6"></i> <strong>Kapal:</strong> Tanggung jawab Penjual.</li>
+                    <li><i class="fa-solid fa-clock text-red-500 w-6"></i> <strong>Delay 2 Hari:</strong> Risiko Operasional Penjual.</li>
+                    <li><i class="fa-solid fa-anchor text-blue-500 w-6"></i> <strong>Rule A3:</strong> Risiko baru beralih saat "On Board".</li>
+                </ul>
+                <div class="mt-6 p-4 bg-slate-900 rounded text-sm italic border-l-2 border-slate-600">
+                    "Seller bears all risks until goods are on board the vessel."
+                </div>
+            </div>
+
+            <!-- Interactive Judgement Area -->
+            <div class="text-center animate-enter delay-1 relative h-64 flex flex-col items-center justify-center">
+                <p class="text-slate-400 mb-6">Siapa yang menanggung kerusakan 5%?</p>
+                <button onclick="revealVerdict('cif')" id="btn-cif" class="btn-interactive bg-purple-600">
+                    <i class="fa-solid fa-gavel"></i> KETUK PALU VONIS
+                </button>
+                
+                <!-- Hidden Verdict -->
+                <div id="verdict-cif" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div class="border-4 border-red-500 text-red-500 font-black text-4xl p-4 rounded rotate-[10deg] bg-slate-900/90 shadow-[0_0_50px_rgba(239,68,68,0.5)] whitespace-nowrap stamp-reveal">
+                        PENJUAL MENANGGUNG
+                    </div>
+                    <p class="mt-12 text-red-400 font-bold bg-slate-900 px-3 py-1 rounded">PT JADI BERKAH: RUGI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: SUMMARY -->
+    <div class="slide" id="s8">
+        <h2 class="text-4xl font-header font-bold mb-8">REKAPITULASI LIABILITAS</h2>
+        <div class="glass-card overflow-hidden animate-enter">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-slate-800 text-slate-400">
+                        <th class="p-4">Isu</th>
+                        <th class="p-4 text-green-400">FOB</th>
+                        <th class="p-4 text-purple-400">CIF</th>
+                    </tr>
+                </thead>
+                <tbody class="text-lg">
+                    <tr class="border-b border-slate-700 hover:bg-slate-800 transition">
+                        <td class="p-4 font-bold">Kapal Telat</td>
+                        <td class="p-4 text-red-400">Salah Pembeli</td>
+                        <td class="p-4 text-red-400">Salah Penjual</td>
+                    </tr>
+                    <tr class="border-b border-slate-700 hover:bg-slate-800 transition">
+                        <td class="p-4 font-bold">Kerusakan 5%</td>
+                        <td class="p-4 text-green-400 font-bold">Dibayar Pembeli</td>
+                        <td class="p-4 text-red-500 font-bold">Dibayar Penjual</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: CUSTOMS INTRO -->
+    <div class="slide" id="s9">
+        <div class="h-full flex flex-col justify-center items-center text-center">
+            <div class="w-24 h-24 bg-cyan-500 rounded-full flex items-center justify-center mb-8 animate-enter shadow-[0_0_50px_rgba(6,182,212,0.5)]">
+                <i class="fa-solid fa-scale-balanced text-5xl text-white"></i>
+            </div>
+            <h2 class="text-6xl font-header font-bold mb-6 animate-enter delay-1">OPTIMASI KEPABEANAN</h2>
+            <div class="flex gap-4 mt-8 animate-enter delay-2">
+                <div class="glass-card px-6 py-3">1. Klasifikasi</div>
+                <div class="glass-card px-6 py-3">2. Valuasi</div>
+                <div class="glass-card px-6 py-3">3. Origin</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: HS CODE -->
+    <div class="slide" id="s10">
+        <h2 class="text-4xl font-header font-bold mb-8 text-cyan-400">1. KLASIFIKASI (HS CODE)</h2>
+        <div class="glass-card p-12 text-center animate-enter border-cyan-500/50">
+            <p class="text-slate-400 mb-2">POS TARIF PKE (Palm Kernel Expeller)</p>
+            <p class="text-8xl font-code font-bold text-white tracking-widest">2306.60</p>
+            <p class="text-cyan-400 mt-4 italic">"Residues of palm nuts or kernels"</p>
+            <div class="mt-8 p-4 bg-red-900/20 border border-red-500/30 rounded inline-block">
+                <i class="fa-solid fa-triangle-exclamation text-red-400 mr-2"></i>
+                Jangan salah pakai HS Cangkang (1404.90)!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: VALUATION -->
+    <div class="slide" id="s11">
+        <h2 class="text-4xl font-header font-bold mb-8 text-cyan-400">2. VALUASI (HPE)</h2>
+        <div class="grid grid-cols-2 gap-8 h-full">
+            <div class="glass-card p-8 animate-enter">
+                <h3 class="text-2xl font-bold mb-4">Indonesia (Ekspor)</h3>
+                <p class="text-slate-300">Pungutan Dana Sawit & Bea Keluar menggunakan <strong>Harga Patokan Ekspor (HPE)</strong> Kemendag, bukan harga invoice.</p>
+            </div>
+            <div class="glass-card p-8 animate-enter delay-1">
+                <h3 class="text-2xl font-bold mb-4">Jepang (Impor)</h3>
+                <p class="text-slate-300">Bea Masuk dihitung dari nilai <strong>CIF</strong>. Pastikan biaya freight wajar (Arm's Length) jika berafiliasi.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: ROO IJEPA -->
+    <div class="slide" id="s12">
+        <h2 class="text-4xl font-header font-bold mb-8 text-cyan-400">3. ORIGIN (SKA IJEPA)</h2>
+        <div class="flex items-center justify-center h-full">
+            <div class="relative w-[400px] h-[500px] bg-white text-black p-8 shadow-2xl rotate-3 animate-enter rounded-sm group hover:rotate-0 transition duration-500">
+                <div class="absolute top-4 right-4 text-xs font-bold border-2 border-black p-1">ORIGINAL</div>
+                <h3 class="text-center font-serif font-bold text-xl border-b-2 border-black pb-4 mb-6">CERTIFICATE OF ORIGIN</h3>
+                <div class="space-y-4 font-mono text-sm">
+                    <p><strong>Form:</strong> IJEPA (Indonesia-Japan)</p>
+                    <p><strong>Exporter:</strong> PT Jadi Berkah</p>
+                    <p><strong>HS Code:</strong> 2306.60</p>
+                    <p><strong>Criterion:</strong> <span class="bg-yellow-200 px-1">"WO" (Wholly Obtained)</span></p>
+                </div>
+                
+                <!-- Animated Stamp -->
+                <div class="absolute bottom-16 right-8 border-4 border-blue-600 text-blue-600 font-bold text-2xl p-2 rounded transform -rotate-12 opacity-80 group-hover:opacity-100 transition">
+                    PREFERENTIAL<br>TARIFF 0%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: INTERACTIVE CALCULATOR -->
+    <div class="slide" id="s13">
+        <h2 class="text-4xl font-header font-bold mb-8 flex items-center gap-3">
+            <i class="fa-solid fa-calculator text-green-400"></i> SIMULASI PENGHEMATAN
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 h-full">
+            <!-- Inputs -->
+            <div class="glass-card p-8 animate-enter">
+                <h3 class="text-xl font-bold mb-6 text-slate-300">Input Data Pengiriman</h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">Volume (Ton)</label>
+                        <input type="number" id="input-vol" value="1500" class="calc-input" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">Harga CIF (USD/Ton)</label>
+                        <input type="number" id="input-price" value="200" class="calc-input" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">Kurs (IDR/USD)</label>
+                        <input type="number" id="input-kurs" value="15500" class="calc-input" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result -->
+            <div class="glass-card p-8 bg-slate-800/50 flex flex-col justify-center items-center text-center animate-enter delay-1 border-green-500/30">
+                <p class="text-slate-400 mb-2">Tanpa IJEPA (Tarif 5%) Bayar Pajak:</p>
+                <p id="res-mfn" class="text-2xl text-red-400 font-mono mb-8">Rp 0</p>
+                
+                <div class="w-full h-px bg-slate-600 mb-8"></div>
+                
+                <p class="text-green-400 font-bold text-xl mb-2">DENGAN IJEPA (0%) ANDA HEMAT:</p>
+                <p id="res-save" class="text-5xl md:text-6xl font-bold text-white drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]">Rp 0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: STRATEGIC BENEFITS -->
+    <div class="slide" id="s14">
+        <h2 class="text-4xl font-header font-bold mb-8">MANFAAT STRATEGIS</h2>
+        <div class="grid grid-cols-3 gap-6">
+            <div class="glass-card p-6 animate-enter hover:-translate-y-2 transition">
+                <i class="fa-solid fa-trophy text-4xl text-blue-500 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Eksportir</h3>
+                <p class="text-sm text-slate-400">Harga kompetitif & Margin lebih tebal karena bebas pajak tujuan.</p>
+            </div>
+            <div class="glass-card p-6 animate-enter delay-1 hover:-translate-y-2 transition">
+                <i class="fa-solid fa-handshake text-4xl text-purple-500 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Importir</h3>
+                <p class="text-sm text-slate-400">Cost Reduction 5% & Kepastian Supply Chain.</p>
+            </div>
+            <div class="glass-card p-6 animate-enter delay-2 hover:-translate-y-2 transition">
+                <i class="fa-solid fa-building-columns text-4xl text-amber-500 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Negara</h3>
+                <p class="text-sm text-slate-400">Devisa masuk & Industri sawit berkelanjutan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: CONCLUSION -->
+    <div class="slide" id="s15">
+        <h2 class="text-4xl font-header font-bold mb-8">KESIMPULAN AKHIR</h2>
+        <div class="space-y-6">
+            <div class="glass-card p-8 border-l-4 border-blue-500 animate-enter">
+                <h3 class="text-2xl font-bold text-blue-400 mb-2">1. Kasus Incoterms</h3>
+                <p class="text-xl">Gunakan <strong>FOB</strong>. Risiko keterlambatan & kerusakan secara hukum jatuh ke tangan Pembeli.</p>
+            </div>
+            <div class="glass-card p-8 border-l-4 border-cyan-500 animate-enter delay-1">
+                <h3 class="text-2xl font-bold text-cyan-400 mb-2">2. Strategi Fiskal</h3>
+                <p class="text-xl">Wajib <strong>HS 2306.60 + Form IJEPA</strong>. Penghematan pajak adalah profit murni.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: END -->
+    <div class="slide" id="s16">
+        <div class="h-full flex flex-col justify-center items-center text-center">
+            <i class="fa-regular fa-circle-check text-8xl text-green-500 mb-8 animate-bounce"></i>
+            <h2 class="text-6xl font-bold mb-4">TERIMA KASIH</h2>
+            <p class="text-2xl text-slate-400">Q & A SESSION</p>
+        </div>
+    </div>
+
+    <!-- === LOGIC === -->
     <script>
-        // --- UTILITY: Label Wrapping Function (Mandatory) ---
-        function wrapLabel(str, maxChars) {
-            if (str.length <= maxChars) return str;
-            const words = str.split(' ');
-            const lines = [];
-            let currentLine = words[0];
+        let currentSlide = 1;
+        const totalSlides = 16;
+        const progressBar = document.getElementById('progress');
+        const pageNum = document.getElementById('page-num');
 
-            for (let i = 1; i < words.length; i++) {
-                if (currentLine.length + 1 + words[i].length <= maxChars) {
-                    currentLine += ' ' + words[i];
+        // Update UI based on current slide
+        function updateUI() {
+            document.querySelectorAll('.slide').forEach((s, index) => {
+                if(index + 1 === currentSlide) {
+                    s.classList.add('active');
+                    
+                    // Reset animations for replayability
+                    const els = s.querySelectorAll('.animate-enter');
+                    els.forEach(el => {
+                        el.style.animation = 'none';
+                        el.offsetHeight; 
+                        el.style.animation = null; 
+                    });
                 } else {
-                    lines.push(currentLine);
-                    currentLine = words[i];
+                    s.classList.remove('active');
                 }
-            }
-            lines.push(currentLine);
-            return lines;
+            });
+
+            // Progress Bar
+            const progress = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+            pageNum.innerText = currentSlide.toString().padStart(2, '0');
         }
 
-        // --- UTILITY: Tooltip Configuration (Mandatory) ---
-        const commonTooltipOptions = {
-            callbacks: {
-                title: function(tooltipItems) {
-                    const item = tooltipItems[0];
-                    let label = item.chart.data.labels[item.dataIndex];
-                    if (Array.isArray(label)) {
-                        return label.join(' ');
-                    } else {
-                        return label;
-                    }
-                }
+        // Navigation
+        function changeSlide(dir) {
+            const next = currentSlide + dir;
+            if(next >= 1 && next <= totalSlides) {
+                currentSlide = next;
+                updateUI();
             }
-        };
+        }
 
-        // --- CHART 1: Incoterms Cost & Risk Structure (Stacked Bar) ---
-        const ctxIncoterms = document.getElementById('incotermsChart').getContext('2d');
-        const incotermsLabels = ['FOB (Free On Board)', 'CIF (Cost Ins Freight)'].map(l => wrapLabel(l, 16));
-
-        new Chart(ctxIncoterms, {
-            type: 'bar',
-            data: {
-                labels: incotermsLabels,
-                datasets: [
-                    {
-                        label: 'Biaya Produk & Lokal',
-                        data: [40, 40], // Base cost same for both
-                        backgroundColor: '#2563EB', // Blue
-                        stack: 'Stack 0',
-                    },
-                    {
-                        label: 'Pengangkutan Utama (Freight) & Asuransi',
-                        data: [0, 30], // FOB: Buyer pays (0 here), CIF: Seller pays (30)
-                        backgroundColor: '#F97316', // Orange
-                        stack: 'Stack 0',
-                    },
-                    {
-                        label: 'Tanggungan Pembeli (Buyer)',
-                        data: [30, 0], // In FOB, this cost shifts to Buyer visually here
-                        backgroundColor: '#E5E7EB', // Grey (represented as "not seller cost")
-                        stack: 'Stack 0',
-                        borderWidth: 1,
-                        borderColor: '#9CA3AF',
-                        borderDash: [5, 5]
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Komposisi Biaya yang Ditanggung Penjual'
-                    },
-                    tooltip: commonTooltipOptions,
-                    legend: {
-                        position: 'bottom'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Unit Biaya (Estimasi)'
-                        }
-                    }
-                }
-            }
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+            if(e.key === 'ArrowLeft') changeSlide(-1);
         });
 
-        // --- CHART 2: FTA Impact Radar (Radar Chart) ---
-        const ctxRadar = document.getElementById('ftaRadarChart').getContext('2d');
-        const radarLabels = ['Efisiensi Biaya (Tarif)', 'Kecepatan Clearance', 'Daya Saing Harga', 'Akses Pasar', 'Kompleksitas Dokumen'].map(l => wrapLabel(l, 16));
+        // --- INTERACTIVE FEATURES ---
 
-        new Chart(ctxRadar, {
-            type: 'radar',
-            data: {
-                labels: radarLabels,
-                datasets: [{
-                    label: 'Tanpa FTA (MFN)',
-                    data: [40, 60, 50, 50, 80], // High cost (low efficiency), moderate speed, low competitiveness, low complexity
-                    fill: true,
-                    backgroundColor: 'rgba(156, 163, 175, 0.2)',
-                    borderColor: 'rgb(156, 163, 175)',
-                    pointBackgroundColor: 'rgb(156, 163, 175)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(156, 163, 175)'
-                }, {
-                    label: 'Dengan FTA (Preferensi)',
-                    data: [90, 85, 95, 90, 60], // High efficiency, fast, high competitive, high access, slightly complex doc (RoO)
-                    fill: true,
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                    borderColor: '#2563EB',
-                    pointBackgroundColor: '#2563EB',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#2563EB'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    tooltip: commonTooltipOptions,
-                    legend: { position: 'bottom' }
-                },
-                scales: {
-                    r: {
-                        angleLines: { display: false },
-                        suggestedMin: 0,
-                        suggestedMax: 100
-                    }
-                }
-            }
+        // 1. Ship Animation (Slide 2)
+        function startShipment() {
+            const ship = document.getElementById('ship-anim');
+            ship.classList.remove('sailing');
+            void ship.offsetWidth; // trigger reflow
+            ship.classList.add('sailing');
+        }
+
+        // 2. Verdict Reveal (Slide 5 & 7)
+        function revealVerdict(type) {
+            document.getElementById(`btn-${type}`).style.display = 'none';
+            document.getElementById(`verdict-${type}`).classList.remove('hidden');
+            // Play sound effect logic could go here
+        }
+
+        // 3. Calculator (Slide 13)
+        function calculate() {
+            const vol = parseFloat(document.getElementById('input-vol').value) || 0;
+            const price = parseFloat(document.getElementById('input-price').value) || 0;
+            const kurs = parseFloat(document.getElementById('input-kurs').value) || 0;
+
+            const totalValueUSD = vol * price;
+            const totalValueIDR = totalValueUSD * kurs;
+
+            // MFN Tariff ~5%
+            const taxMFN = totalValueIDR * 0.05;
+            
+            // Format Currency
+            const fmt = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
+
+            document.getElementById('res-mfn').innerText = fmt.format(taxMFN);
+            document.getElementById('res-save').innerText = fmt.format(taxMFN); // Savings = MFN cost because IJEPA is 0
+        }
+
+        // 4. Parallax Background
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+
+            document.getElementById('bg-layer').style.transform = `translate(${x * -20}px, ${y * -20}px)`;
+            document.getElementById('orb1').style.transform = `translate(${x * 30}px, ${y * 30}px)`;
+            document.getElementById('orb2').style.transform = `translate(${x * -30}px, ${y * -30}px)`;
         });
 
-        // --- CHART 3: Benefits Distribution (Doughnut) ---
-        const ctxBenefits = document.getElementById('benefitsChart').getContext('2d');
-        const benefitLabels = ['Keuntungan Eksportir', 'Keuntungan Importir', 'Pendapatan/Ekonomi Negara'].map(l => wrapLabel(l, 16));
-
-        new Chart(ctxBenefits, {
-            type: 'doughnut',
-            data: {
-                labels: benefitLabels,
-                datasets: [{
-                    label: 'Distribusi Nilai Tambah',
-                    data: [40, 35, 25],
-                    backgroundColor: [
-                        '#2563EB', // Blue
-                        '#F97316', // Orange
-                        '#10B981'  // Green
-                    ],
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    tooltip: commonTooltipOptions,
-                    legend: { position: 'bottom' },
-                    title: {
-                        display: true,
-                        text: 'Distribusi Nilai Tambah FTA'
-                    }
-                }
-            }
-        });
-
+        // Initialize Calculator
+        calculate();
+        updateUI();
     </script>
 </body>
 </html>
